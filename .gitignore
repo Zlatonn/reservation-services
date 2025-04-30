@@ -1,0 +1,51 @@
+# === Common Node output ===
+**/node_modules
+**/dist
+**/build
+**/.turbo
+
+# === Logs ===
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+lerna-debug.log*
+
+# === OS ===
+.DS_Store
+
+# === Tests & Coverage ===
+**/coverage
+**/.nyc_output
+
+# === IDEs and editors ===
+.idea/
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# === VSCode ===
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# === dotenv files ===
+.env
+.env.*.local
+
+# === temp/runtime data ===
+.temp
+.tmp
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# === Diagnostic reports (Node.js) ===
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
