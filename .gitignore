@@ -36,7 +36,7 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # === dotenv files ===
-.env
+**/.env
 .env.*.local
 
 # === temp/runtime data ===
