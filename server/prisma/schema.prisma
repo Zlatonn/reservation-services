@@ -1,0 +1,45 @@
+// Set DB connection
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Create DB tables
+model Office {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  address  String?
+  services Service[]
+}
+
+model Service {
+  id             String       @id @default(uuid())
+  category       String
+  name           String
+  reservableDate DateTime     @db.Date
+  openingDays    OpeningDay[]
+  description    String?
+  office         Office       @relation(fields: [officeId], references: [id], onDelete: Cascade)
+  officeId       String
+}
+
+model OpeningDay {
+  id        String     @id @default(uuid())
+  day       Int
+  timeslots TimeSlot[]
+  service   Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  serviceId String
+}
+
+model TimeSlot {
+  id           String     @id @default(uuid())
+  startAt      String
+  endAt        String
+  available    Int
+  openingDay   OpeningDay @relation(fields: [openingDayId], references: [id], onDelete: Cascade)
+  openingDayId String
+}
