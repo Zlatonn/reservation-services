@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common"
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
 import { CreateServiceDto } from "./dto/create-service.dto"
 import { PrismaService } from "src/prisma.service"
 import { UpdateServiceDto } from "./dto/update-service.dto"
@@ -9,6 +9,19 @@ export class ServicesService {
 
 	async createService(serviceData: CreateServiceDto) {
 		return await this.prisma.$transaction(async (tx) => {
+			// check office exists
+			const foundOffice = await tx.office.findUnique({ where: { id: serviceData.officeId } })
+			if (!foundOffice) throw new NotFoundException("Office not found")
+
+			// Check duplicate opening day
+			const uniqueDays = new Set()
+			for (const openingDayData of serviceData.openingDays || []) {
+				if (uniqueDays.has(openingDayData.day)) {
+					throw new BadRequestException(`Duplicate opening day is: ${openingDayData.day}`)
+				}
+				uniqueDays.add(openingDayData.day)
+			}
+
 			// create service
 			const service = await tx.service.create({
 				data: {
@@ -48,8 +61,8 @@ export class ServicesService {
 				}
 			}
 
-			// return created result
-			return await tx.service.findUnique({
+			// Adjust result pattern
+			const result = await tx.service.findUnique({
 				where: { id: service.id },
 				include: {
 					openingDays: {
@@ -59,11 +72,19 @@ export class ServicesService {
 					},
 				},
 			})
+
+			// return when success
+			return {
+				statusCode: 201,
+				message: "Service created",
+				data: result,
+			}
 		})
 	}
 
 	async getService(id: string) {
-		return await this.prisma.service.findUnique({
+		// check service not found
+		const result = await this.prisma.service.findUnique({
 			where: { id },
 			include: {
 				openingDays: {
@@ -73,10 +94,36 @@ export class ServicesService {
 				},
 			},
 		})
+
+		if (!result) throw new NotFoundException("Service not found")
+
+		// return when success
+		return {
+			statusCode: 200,
+			message: "Service received",
+			data: result,
+		}
 	}
 
 	async updateService(id: string, serviceData: UpdateServiceDto) {
 		return this.prisma.$transaction(async (tx) => {
+			// check office not found
+			const foundOffice = await tx.office.findUnique({ where: { id: serviceData.officeId } })
+			if (!foundOffice) throw new NotFoundException("Office not found")
+
+			// check service not found
+			const foundService = await tx.service.findUnique({ where: { id } })
+			if (!foundService) throw new NotFoundException("Service not found")
+
+			// Check duplicate opening day
+			const uniqueDays = new Set()
+			for (const openingDayData of serviceData.openingDays || []) {
+				if (uniqueDays.has(openingDayData.day)) {
+					throw new BadRequestException(`Duplicate opening day is: ${openingDayData.day}`)
+				}
+				uniqueDays.add(openingDayData.day)
+			}
+
 			// reset opening day & timeslot
 			await tx.openingDay.deleteMany({
 				where: { serviceId: id },
@@ -122,9 +169,9 @@ export class ServicesService {
 				}
 			}
 
-			// return created result
-			return await tx.service.findUnique({
-				where: { id },
+			// Adjust result pattern
+			const result = await tx.service.findUnique({
+				where: { id: service.id },
 				include: {
 					openingDays: {
 						include: {
@@ -133,10 +180,28 @@ export class ServicesService {
 					},
 				},
 			})
+
+			// return when success
+			return {
+				statusCode: 201,
+				message: "Service updated",
+				data: result,
+			}
 		})
 	}
 
 	async deleteService(id: string) {
-		return await this.prisma.service.delete({ where: { id } })
+		// check service not found
+		const foundService = await this.prisma.service.findUnique({ where: { id } })
+		if (!foundService) throw new NotFoundException("Service not found")
+
+		const result = await this.prisma.service.delete({ where: { id } })
+
+		// return when success
+		return {
+			statusCode: 204,
+			message: "Service deleted",
+			data: result,
+		}
 	}
 }
