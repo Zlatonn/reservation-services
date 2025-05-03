@@ -1,5 +1,5 @@
 function App() {
-  return <>Hello Client</>;
+  return <p className="text-5xl font-semibold ">สวัสดี</p>;
 }
 
 export default App;

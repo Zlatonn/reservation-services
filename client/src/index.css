@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "@fontsource/ibm-plex-sans-thai/300.css";
+@import "@fontsource/ibm-plex-sans-thai/400.css";
+@import "@fontsource/ibm-plex-sans-thai/600.css";
 
 @custom-variant dark (&:is(.dark *));
 
@@ -116,5 +119,6 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: "IBM Plex Sans Thai", sans-serif;
   }
 }
