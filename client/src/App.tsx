@@ -1,5 +1,13 @@
+import { AppSidebar } from "./components/app-sidebar";
+import { SidebarProvider } from "./components/ui/sidebar";
+
 function App() {
-  return <p className="text-5xl font-semibold ">สวัสดี</p>;
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="w-screen min-h-screen">สวัสดี</main>
+    </SidebarProvider>
+  );
 }
 
 export default App;

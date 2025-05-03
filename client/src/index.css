@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "@fontsource/ibm-plex-sans-thai/300.css";
 @import "@fontsource/ibm-plex-sans-thai/400.css";
+@import "@fontsource/ibm-plex-sans-thai/500.css";
 @import "@fontsource/ibm-plex-sans-thai/600.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -72,6 +73,7 @@
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: oklch(0.645 0.246 16.439);
+  --sidebar-primary-shade: oklch(0.9 0.25 16.439);
   --sidebar-primary-foreground: oklch(0.969 0.015 12.422);
   --sidebar-accent: oklch(0.967 0.001 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
@@ -106,6 +108,7 @@
   --sidebar: oklch(0.21 0.006 285.885);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.645 0.246 16.439);
+  --sidebar-primary-shade: oklch(0.9 0.2 16.439);
   --sidebar-primary-foreground: oklch(0.969 0.015 12.422);
   --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
