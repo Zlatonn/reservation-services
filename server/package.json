@@ -2,9 +2,12 @@
 	"name": "server",
 	"version": "0.0.1",
 	"description": "",
-	"author": "",
+	"author": "zlatonn",
 	"private": true,
 	"license": "UNLICENSED",
+	"prisma": {
+		"seed": "ts-node prisma/seed.ts"
+	},
 	"scripts": {
 		"build": "nest build",
 		"format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
