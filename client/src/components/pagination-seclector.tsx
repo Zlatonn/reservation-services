@@ -20,8 +20,10 @@ export function PaginationSelector() {
         <SelectValue defaultValue={10} placeholder={10} />
       </SelectTrigger>
       <SelectContent>
-        {paginationNums.map((pn) => (
-          <SelectItem value={pn.value}>{pn.label}</SelectItem>
+        {paginationNums.map((pn, i) => (
+          <SelectItem key={`pn-${i}`} value={pn.value}>
+            {pn.label}
+          </SelectItem>
         ))}
       </SelectContent>
     </Select>
