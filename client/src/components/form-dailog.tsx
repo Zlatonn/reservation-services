@@ -23,6 +23,8 @@ import CalendarCaption from "@/components/calendar-caption";
 import { CalendarIcon } from "lucide-react";
 
 import { formatThaiDate } from "@/lib/calendar-format";
+import { useCreateService, useDeleteService, useGetService, useUpdateService } from "@/hooks/use-api";
+import { useOfficeId } from "@/hooks/use-officeId";
 
 // Mock up categories
 const categories = [
@@ -80,7 +82,6 @@ const weekdays = [
 
 // Opening schema
 const openingDaySchema = z.object({
-  id: z.string().optional(),
   day: z.number().int().min(0, "Day must be between 0 and 6").max(6, "Day must be between 0 and 6"),
   // timeslots: z.array(timeSlotSchema).min(1, "At least one timeslot is required"),
 });
@@ -95,44 +96,84 @@ const formSchema = z.object({
   }),
   openingDays: z.array(openingDaySchema).min(1, "At least one opening day is required"),
   description: z.string().optional(),
+  officeId: z.string(),
 });
 
 type FormSchema = z.infer<typeof formSchema>;
 
 export function FormDialog() {
+  // get current office ID
+  const { currentOfficeId } = useOfficeId();
+
+  // Import form dialog
+  const { id, isOpen, closeDialog } = useFormDialog();
+
+  // Fetch service data
+  const { data } = useGetService(id);
+
+  const { mutate: createService } = useCreateService();
+  const { mutate: updateService } = useUpdateService(id);
+  const { mutate: deleteService } = useDeleteService(id);
+
   // Create form using react hook form with empty value
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       category: "",
       name: "",
-      reservableDate: undefined,
+      reservableDate: "",
       openingDays: [],
       description: "",
+      officeId: currentOfficeId,
     },
   });
 
-  // import form dialog
-  const { id, isOpen, closeDialog } = useFormDialog();
-
   // Set form data
   useEffect(() => {
-    if (isOpen && id) {
-      // fetch api
+    if (isOpen && id && data) {
+      form.reset({
+        category: data.category || "",
+        name: data.name || "",
+        reservableDate: data.reservableDate || "",
+        openingDays: data.openingDays || [],
+        description: data.description || "",
+        officeId: data.officeId || currentOfficeId,
+      });
     } else {
       form.reset({
         category: "",
         name: "",
-        reservableDate: undefined,
+        reservableDate: "",
         openingDays: [],
         description: "",
+        officeId: currentOfficeId,
       });
     }
-  }, [isOpen, id, form]);
+  }, [isOpen, id, form, data, currentOfficeId]);
 
-  // handle submit form
+  // Handle submit form
   const onSubmit = (value: z.infer<typeof formSchema>) => {
-    console.log(value);
+    if (id) {
+      updateService({
+        ...value,
+        reservableDate: new Date(value.reservableDate),
+        openingDays: value.openingDays.map((d) => ({
+          day: d.day,
+        })),
+      });
+    } else {
+      createService({
+        ...value,
+        reservableDate: new Date(value.reservableDate),
+      });
+    }
+
+    closeDialog();
+  };
+
+  // Handle delete
+  const onDelete = () => {
+    deleteService();
     closeDialog();
   };
 
@@ -141,13 +182,13 @@ export function FormDialog() {
       <DialogContent className=" max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <DialogHeader>
-          <DialogTitle>{id ? "เพิ่มประเภทงาน" : "แก้ไขประเภทงาน"}</DialogTitle>
+          <DialogTitle>{id ? "แก้ไขประเภทงาน" : "เพิ่มประเภทงาน"}</DialogTitle>
           <DialogDescription />
 
           {/* Content */}
           <Container className="px-5">
             <Form {...form}>
-              <form className="space-y-6">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* Cetegory field*/}
                 <FormField
                   control={form.control}
@@ -155,7 +196,7 @@ export function FormDialog() {
                   render={({ field }) => (
                     <FormItem className="flex flex-col sm:flex-row">
                       <FormLabel className="text-nowrap w-40">กลุ่มงาน</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="--กรุณาเลือกประเภทกลุ่มงาน--" />
@@ -180,7 +221,7 @@ export function FormDialog() {
                   render={({ field }) => (
                     <FormItem className="flex flex-col sm:flex-row">
                       <FormLabel className="text-nowrap w-40">ชื่อประเภทงาน</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl className="flex-grow">
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="--กรุณาเลือกประเภทชื่อประเภทงาน--" />
@@ -295,19 +336,18 @@ export function FormDialog() {
                 <div className="flex justify-between">
                   {/* Delete button */}
                   <Button
+                    type="button"
                     variant="outline"
+                    onClick={onDelete}
                     className={`${
-                      id ? "invisible" : "visible"
+                      id ? "visible" : "invisible"
                     } border-primary text-primary hover:text-white hover:bg-primary cursor-pointer`}
                   >
                     ลบประเภทงาน
                   </Button>
 
                   {/* Create/Edit button */}
-                  <Button
-                    onClick={form.handleSubmit(onSubmit)}
-                    className="border-[1px] hover:text-primary hover:bg-white hover:border-primary cursor-pointer"
-                  >
+                  <Button type="submit" className="border-[1px] hover:text-primary hover:bg-white hover:border-primary cursor-pointer">
                     บันทึก
                   </Button>
                 </div>

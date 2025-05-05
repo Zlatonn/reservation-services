@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -7,21 +7,30 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 
 import { Check, ChevronsUpDown } from "lucide-react";
 
-// Mock up offices
-const offices = [
-  { value: "สำนักงานขนส่งพื้นที่1(บางขุนเทียน)", label: "สำนักงานขนส่งพื้นที่1(บางขุนเทียน)" },
-  { value: "สำนักงานขนส่งพื้นที่2(ตลิ่งชัน)", label: "สำนักงานขนส่งพื้นที่2(ตลิ่งชัน)" },
-  { value: "สำนักงานขนส่งพื้นที่3(พระขโนง)", label: "สำนักงานขนส่งพื้นที่3(พระขโนง)" },
-  { value: "สำนักงานขนส่งพื้นที่4(หนองจอก)", label: "สำนักงานขนส่งพื้นที่4(หนองจอก)" },
-  { value: "สำนักงานขนส่งพื้นที่5(จตุจักร)", label: "สำนักงานขนส่งพื้นที่5(จตุจักร)" },
-  { value: "สำนักงานขนส่งพื้นที่5(ส่วนทะเบียนรถคนส่ง)", label: "สำนักงานขนส่งพื้นที่5(ส่วนทะเบียนรถคนส่ง)" },
-  { value: "โรงเรียนสอนขับรถสำนักงานขนส่งพื้นที่5อาคาร8", label: "โรงเรียนสอนขับรถสำนักงานขนส่งพื้นที่5อาคาร8" },
-  { value: "กรมการขนส่งทางบก(อาคาร8)", label: "กรมการขนส่งทางบก(อาคาร8)" },
-  { value: "สมุทรปราการสาขาพระประแดง", label: "สมุทรปราการสาขาพระประแดง" },
-];
+import { useGetOffices } from "@/hooks/use-api";
+import { useOfficeId } from "@/hooks/use-officeId";
+
+interface Offices {
+  id: string;
+  name: string;
+}
 
 export function OfficeSelector() {
-  // Create state
+  // Fetch offices data using useGetOffices()
+  const { data } = useGetOffices();
+
+  // Import set officeId function
+  const { setOfficeId } = useOfficeId();
+
+  // // create office state
+  const [offices, setOffices] = useState<Offices[]>([]);
+
+  // initial fetch
+  useEffect(() => {
+    setOffices(data);
+  }, [data]);
+
+  // Create input state
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
@@ -30,7 +39,7 @@ export function OfficeSelector() {
       {/* Trigger */}
       <PopoverTrigger asChild>
         <Button variant="outline" role="combobox" aria-expanded={open} className="w-full xl:w-[450px] justify-between">
-          {value ? offices.find((office) => office.value === value)?.label : "เลือกสาขา..."}
+          {value ? offices.find((office) => office.id === value)?.name : "เลือกสาขา..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -42,19 +51,21 @@ export function OfficeSelector() {
           <CommandList>
             <CommandEmpty>ไม่พบสาขาที่เลือก</CommandEmpty>
             <CommandGroup>
-              {offices.map((office) => (
-                <CommandItem
-                  key={office.value}
-                  value={office.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue);
-                    setOpen(false);
-                  }}
-                >
-                  <Check className={cn("mr-2 h-4 w-4", value === office.value ? "opacity-100" : "opacity-0")} />
-                  {office.label}
-                </CommandItem>
-              ))}
+              {offices &&
+                offices.map((office, i) => (
+                  <CommandItem
+                    key={`office-${i}`}
+                    value={office.name}
+                    onSelect={() => {
+                      setValue(office.id);
+                      setOfficeId(office.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <Check className={cn("mr-2 h-4 w-4", value === office.id ? "opacity-100" : "opacity-0")} />
+                    {office.name}
+                  </CommandItem>
+                ))}
             </CommandGroup>
           </CommandList>
         </Command>

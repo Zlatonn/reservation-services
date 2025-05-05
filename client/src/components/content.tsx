@@ -7,7 +7,16 @@ import { PaginationSelector } from "@/components/pagination-seclector";
 
 import { Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
+import { useFormDialog } from "@/hooks/use-form-dialog";
+import { useOfficeId } from "@/hooks/use-officeId";
+
 const Content = () => {
+  // Get current office ID
+  const { currentOfficeId } = useOfficeId();
+
+  // Import open dialog function
+  const { openDialog } = useFormDialog();
+
   return (
     <>
       {/* ---------- Header ---------- */}
@@ -20,7 +29,9 @@ const Content = () => {
           <div className="flex flex-col gap-1">
             <OfficeSelector />
             <Button
+              disabled={currentOfficeId === ""}
               variant="outline"
+              onClick={() => openDialog()}
               className="w-fit border-[1px] border-primary text-primary cursor-pointer hover:bg-primary hover:border-secondary hover:text-secondary"
             >
               <Plus />

@@ -1,20 +1,44 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useGetAllServiceByOfficeId } from "@/hooks/use-api";
+import { useFormDialog } from "@/hooks/use-form-dialog";
+import { useOfficeId } from "@/hooks/use-officeId";
+import { translateCategory, translateServiceName } from "@/lib/translate";
 
-// Mock up service data
-const services = [
-  { name: "ชำระภาษีรถยนต์ประจำปี" },
-  { name: "ขอป้ายทะเบียนใหม่" },
-  { name: "แจ้งย้ายรถเข้า" },
-  { name: "แจ้งย้ายรถออก" },
-  { name: "ขอโอนกรรมสิทธิ์รถ" },
-  { name: "ต่ออายุใบอนุญาตขับขี่" },
-  { name: "ขอใบแทนใบอนุญาตขับขี่" },
-  { name: "จองคิวอบรมตัดแต้ม" },
-  { name: "ยื่นคำร้องเปลี่ยนข้อมูลเจ้าของรถ" },
-  { name: "ขอใบแทนเล่มทะเบียน" },
-];
+import { useEffect, useState } from "react";
+
+interface Service {
+  id: string;
+  category: string;
+  name: string;
+}
 
 export function ServicesTable() {
+  // // Get current office ID
+  const { currentOfficeId } = useOfficeId();
+
+  // // Fetch services by office ID
+  const { data } = useGetAllServiceByOfficeId(currentOfficeId);
+
+  // Import open dialog function
+  const { openDialog } = useFormDialog();
+
+  // Create services state
+  const [services, setServices] = useState<Service[]>([]);
+
+  // Set services
+  useEffect(() => {
+    if (currentOfficeId && data) {
+      const transformed = data.length
+        ? data.map((e: Service) => ({
+            id: e.id,
+            category: translateCategory(e.category),
+            name: translateServiceName(e.name),
+          }))
+        : data;
+      setServices(transformed);
+    }
+  }, [currentOfficeId, data]);
+
   return (
     <Table>
       {/* Header */}
@@ -26,9 +50,9 @@ export function ServicesTable() {
 
       {/* Body */}
       <TableBody>
-        {services.map((service) => (
-          <TableRow key={service.name}>
-            <TableCell>{service.name}</TableCell>
+        {services.map((service, i) => (
+          <TableRow key={`service-${i}`}>
+            <TableCell onClick={() => openDialog(service.id)}>{service.name}</TableCell>
           </TableRow>
         ))}
       </TableBody>
