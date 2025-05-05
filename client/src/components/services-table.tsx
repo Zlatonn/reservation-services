@@ -1,4 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+// Mock up service data
 const services = [
   { name: "ชำระภาษีรถยนต์ประจำปี" },
   { name: "ขอป้ายทะเบียนใหม่" },
@@ -15,11 +17,14 @@ const services = [
 export function ServicesTable() {
   return (
     <Table>
+      {/* Header */}
       <TableHeader>
         <TableRow>
           <TableHead className="pl-5 text-lg text-gray-500 font-semibold">ประเภทงาน</TableHead>
         </TableRow>
       </TableHeader>
+
+      {/* Body */}
       <TableBody>
         {services.map((service) => (
           <TableRow key={service.name}>

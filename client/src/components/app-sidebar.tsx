@@ -46,7 +46,10 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
-        <SidebarMenuButton asChild className="flex justify-center items-center bg-primary text-accent hover:bg-primary cursor-pointer">
+        <SidebarMenuButton
+          asChild
+          className="flex justify-center items-center border-[1px] bg-primary text-accent hover:bg-white hover:text-primary hover:border-primary cursor-pointer"
+        >
           <a href="#">
             <LogOut />
             <span>ออกจากระบบ</span>
