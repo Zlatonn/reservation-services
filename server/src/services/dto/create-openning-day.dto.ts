@@ -1,6 +1,4 @@
-import { IsArray, IsEnum, ValidateNested } from "class-validator"
-import { Type } from "class-transformer"
-import { CreateTimeSlotDto } from "./create-time-slot.dto"
+import { IsEnum } from "class-validator"
 
 export enum DayOfWeek {
 	SUNDAY = 0,
@@ -15,9 +13,4 @@ export enum DayOfWeek {
 export class CreateOpenningDayDto {
 	@IsEnum(DayOfWeek)
 	readonly day: DayOfWeek
-
-	@IsArray()
-	@ValidateNested({ each: true })
-	@Type(() => CreateTimeSlotDto)
-	readonly timeSlots: CreateTimeSlotDto[]
 }

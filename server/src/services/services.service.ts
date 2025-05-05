@@ -37,7 +37,7 @@ export class ServicesService {
 
 			// create opening days
 			for (const openingDayData of serviceData.openingDays || []) {
-				const openingDay = await tx.openingDay.create({
+				await tx.openingDay.create({
 					data: {
 						day: openingDayData.day,
 						service: {
@@ -45,31 +45,13 @@ export class ServicesService {
 						},
 					},
 				})
-
-				// create timeslots
-				for (const timeSlotData of openingDayData.timeSlots || []) {
-					await tx.timeSlot.create({
-						data: {
-							startAt: timeSlotData.startAt,
-							endAt: timeSlotData.endAt,
-							available: timeSlotData.available,
-							openingDay: {
-								connect: { id: openingDay.id },
-							},
-						},
-					})
-				}
 			}
 
 			// Adjust result pattern
 			const result = await tx.service.findUnique({
 				where: { id: service.id },
 				include: {
-					openingDays: {
-						include: {
-							timeslots: true,
-						},
-					},
+					openingDays: true,
 				},
 			})
 
@@ -87,11 +69,7 @@ export class ServicesService {
 		const result = await this.prisma.service.findUnique({
 			where: { id },
 			include: {
-				openingDays: {
-					include: {
-						timeslots: true,
-					},
-				},
+				openingDays: true,
 			},
 		})
 
@@ -124,7 +102,7 @@ export class ServicesService {
 				uniqueDays.add(openingDayData.day)
 			}
 
-			// reset opening day & timeslot
+			// reset opening day
 			await tx.openingDay.deleteMany({
 				where: { serviceId: id },
 			})
@@ -145,7 +123,7 @@ export class ServicesService {
 
 			// create opening days
 			for (const openingDayData of serviceData.openingDays || []) {
-				const openingDay = await tx.openingDay.create({
+				await tx.openingDay.create({
 					data: {
 						day: openingDayData.day,
 						service: {
@@ -153,31 +131,13 @@ export class ServicesService {
 						},
 					},
 				})
-
-				// create timeslots
-				for (const timeSlotData of openingDayData.timeSlots || []) {
-					await tx.timeSlot.create({
-						data: {
-							startAt: timeSlotData.startAt,
-							endAt: timeSlotData.endAt,
-							available: timeSlotData.available,
-							openingDay: {
-								connect: { id: openingDay.id },
-							},
-						},
-					})
-				}
 			}
 
 			// Adjust result pattern
 			const result = await tx.service.findUnique({
 				where: { id: service.id },
 				include: {
-					openingDays: {
-						include: {
-							timeslots: true,
-						},
-					},
+					openingDays: true,
 				},
 			})
 

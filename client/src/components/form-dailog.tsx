@@ -66,24 +66,10 @@ const weekdays = [
 
 // Create schemas
 
-// // Time slot schema
-// const timeSlotSchema = z.object({
-//   id: z.string().optional(),
-//   startAt: z
-//     .string()
-//     .min(1, "Start time is required")
-//     .regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:mm)"),
-//   endAt: z
-//     .string()
-//     .min(1, "End time is required")
-//     .regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:mm)"),
-//   available: z.number().int().min(1, "Must be at least 1"),
-// });
-
 // Opening schema
 const openingDaySchema = z.object({
+  id: z.string().optional(),
   day: z.number().int().min(0, "Day must be between 0 and 6").max(6, "Day must be between 0 and 6"),
-  // timeslots: z.array(timeSlotSchema).min(1, "At least one timeslot is required"),
 });
 
 // Form schema

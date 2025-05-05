@@ -28,18 +28,8 @@ model Service {
 }
 
 model OpeningDay {
-  id        String     @id @default(uuid())
+  id        String  @id @default(uuid())
   day       Int
-  timeslots TimeSlot[]
-  service   Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   serviceId String
-}
-
-model TimeSlot {
-  id           String     @id @default(uuid())
-  startAt      String
-  endAt        String
-  available    Int
-  openingDay   OpeningDay @relation(fields: [openingDayId], references: [id], onDelete: Cascade)
-  openingDayId String
 }
