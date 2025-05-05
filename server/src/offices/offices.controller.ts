@@ -31,4 +31,9 @@ export class OfficesController {
 	delete(@Param("id") id: string) {
 		return this.officesService.deleteOffice(id)
 	}
+
+	@Get(":id/services")
+	findAllServicesById(@Param("id") id: string) {
+		return this.officesService.getServicesByOfficeId(id)
+	}
 }
