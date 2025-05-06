@@ -84,25 +84,33 @@ export class OfficesService {
 		}
 	}
 
-	async getServicesByOfficeId(id: string) {
+	async getServicesByOfficeId(id: string, skip: number, take: number) {
 		// check office not found
 		const foundOffice = await this.prisma.office.findUnique({ where: { id } })
 		if (!foundOffice) throw new NotFoundException("Office not found")
 
-		const result = await this.prisma.service.findMany({
-			where: { officeId: id },
-			select: {
-				id: true,
-				category: true,
-				name: true,
-			},
-		})
+		const [result, totalCount] = await Promise.all([
+			// Fin data of services where  officeId = id
+			this.prisma.service.findMany({
+				where: { officeId: id },
+				skip,
+				take,
+				select: {
+					id: true,
+					category: true,
+					name: true,
+				},
+			}),
 
-		// return when success
+			// Find count of services where  officeId = id
+			this.prisma.service.count({ where: { officeId: id } }),
+		])
+
 		return {
 			statusCode: 200,
-			message: "Services recived",
+			message: "Services received",
 			data: result,
+			totalCount,
 		}
 	}
 }

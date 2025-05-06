@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete } from "@nestjs/common"
+import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from "@nestjs/common"
 import { OfficesService } from "./offices.service"
 import { CreateOfficeDto } from "./dto/create-office.dto"
 import { UpdateOfficeDto } from "./dto/update-office.dto"
@@ -33,7 +33,9 @@ export class OfficesController {
 	}
 
 	@Get(":id/services")
-	findAllServicesById(@Param("id") id: string) {
-		return this.officesService.getServicesByOfficeId(id)
+	findAllServicesById(@Param("id") id: string, @Query("skip") skip?: string, @Query("take") take?: string) {
+		const parsedSkip = parseInt(skip ?? "0", 10)
+		const parsedTake = parseInt(take ?? "10", 10)
+		return this.officesService.getServicesByOfficeId(id, parsedSkip, parsedTake)
 	}
 }
