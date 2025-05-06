@@ -258,7 +258,7 @@ export function FormDialog() {
                             selected={field.value ? new Date(field.value) : undefined}
                             onSelect={(selectedDate) => {
                               if (selectedDate) {
-                                const isoString = selectedDate.toISOString();
+                                const isoString = selectedDate.toISOString().split("T")[0];
                                 field.onChange(isoString);
                               }
                             }}
