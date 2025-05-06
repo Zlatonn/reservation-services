@@ -9,6 +9,7 @@ import { Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } 
 
 import { useFormDialog } from "@/hooks/use-form-dialog";
 import { useOfficeId } from "@/hooks/use-officeId";
+import { usePagination } from "@/hooks/use-pagination";
 
 const Content = () => {
   // Get current office ID
@@ -16,6 +17,38 @@ const Content = () => {
 
   // Import open dialog function
   const { openDialog } = useFormDialog();
+
+  // Import from usePagination
+  const { skip, take, totalCount, setSkip } = usePagination();
+
+  const currentPage = Math.floor(skip / take) + 1;
+  const totalPage = Math.ceil(totalCount / take);
+
+  // Handle to prev page
+  const handlePrevPage = () => {
+    if (currentPage > 1) setSkip(skip - take);
+  };
+
+  // Handle to next page
+  const handleNextPage = () => {
+    if (currentPage < totalPage) {
+      setSkip(skip + take);
+    }
+  };
+
+  // Handle to first page
+  const handleFirstPage = () => {
+    if (currentPage > 1) {
+      setSkip(0);
+    }
+  };
+
+  // Handle to last page
+  const handleLastPage = () => {
+    if (currentPage < totalPage) {
+      setSkip((totalPage - 1) * take);
+    }
+  };
 
   return (
     <>
@@ -61,18 +94,32 @@ const Content = () => {
 
           {/* Handle page component */}
           <div className="flex justify-between items-center gap-10 ">
-            <span className="hidden lg:block">Page 1 of 4</span>
+            <span className="hidden lg:block">
+              Page {currentPage} of {totalPage}
+            </span>
             <div className="flex gap-2">
-              <Button variant="outline" size="icon" className="cursor-pointer">
+              <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={handleFirstPage} className="cursor-pointer">
                 <ChevronsLeft />
               </Button>
-              <Button variant="outline" size="icon" className="cursor-pointer">
+              <Button variant="outline" size="icon" disabled={currentPage === 1} onClick={handlePrevPage} className="cursor-pointer">
                 <ChevronLeft />
               </Button>
-              <Button variant="outline" size="icon" className="cursor-pointer">
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={currentPage === totalPage}
+                onClick={handleNextPage}
+                className="cursor-pointer"
+              >
                 <ChevronRight />
               </Button>
-              <Button variant="outline" size="icon" className="cursor-pointer">
+              <Button
+                variant="outline"
+                size="icon"
+                disabled={currentPage === totalPage}
+                onClick={handleLastPage}
+                className="cursor-pointer"
+              >
                 <ChevronsRight />
               </Button>
             </div>

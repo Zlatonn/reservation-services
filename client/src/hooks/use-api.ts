@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { usePagination } from "./use-pagination";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -98,11 +99,15 @@ export const useDeleteOffice = (id: string) => {
 };
 
 export const useGetAllServiceByOfficeId = (officeId: string) => {
+  // Import from usePagination
+  const { skip, take, setTotalCount } = usePagination();
   return useQuery({
-    queryKey: ["serviceByofficeId", officeId],
+    queryKey: ["serviceByofficeId", officeId, skip, take],
     queryFn: async () => {
       try {
-        const response = await axiosClient.get(`/offices/${officeId}/services`);
+        const response = await axiosClient.get(`/offices/${officeId}/services`, { params: { skip, take } });
+        // Set total count of service
+        setTotalCount(response.data.totalCount);
         return response.data.data;
       } catch (error) {
         console.error("Error fetching service by office ID: ", error);

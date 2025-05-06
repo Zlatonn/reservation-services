@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { usePagination } from "@/hooks/use-pagination";
 
 // Mock up pagination numbers
 const paginationNums = [
@@ -14,10 +15,12 @@ const paginationNums = [
   { value: "10", label: "10" },
 ];
 export function PaginationSelector() {
+  // Import set take from usePagination
+  const { setTake } = usePagination();
   return (
-    <Select>
+    <Select onValueChange={(value) => setTake(Number(value))}>
       <SelectTrigger className="w-18">
-        <SelectValue defaultValue={10} placeholder={10} />
+        <SelectValue placeholder={10} />
       </SelectTrigger>
       <SelectContent>
         {paginationNums.map((pn, i) => (
