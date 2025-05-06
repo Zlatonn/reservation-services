@@ -1,11 +1,10 @@
 import { CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { OfficeSelector } from "@/components/office-selector";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { ServicesTable } from "@/components/services-table";
 import { PaginationSelector } from "@/components/pagination-seclector";
 
-import { Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 import { useFormDialogStore } from "@/stores/use-form-dialog-store";
 import { useOfficeIdStore } from "@/stores/use-officeId-store";
@@ -70,12 +69,6 @@ const Content = () => {
               <Plus />
               <span>เพิ่มประเภทงาน</span>
             </Button>
-          </div>
-
-          {/* Search box */}
-          <div className="relative w-full xl:w-[450px]">
-            <Input placeholder="ค้นหา" className="pl-10" />
-            <Search className="absolute top-1.5 left-1.5 text-gray-500 w-5" />
           </div>
         </div>
       </CardHeader>
