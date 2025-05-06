@@ -8,7 +8,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { useGetOffices } from "@/hooks/use-api";
-import { useOfficeId } from "@/hooks/use-officeId";
+import { useOfficeIdStore } from "@/stores/use-officeId-store";
 
 interface Offices {
   id: string;
@@ -20,7 +20,7 @@ export function OfficeSelector() {
   const { data } = useGetOffices();
 
   // Import set officeId function
-  const { setOfficeId } = useOfficeId();
+  const { setOfficeId } = useOfficeIdStore();
 
   // // create office state
   const [offices, setOffices] = useState<Offices[]>([]);

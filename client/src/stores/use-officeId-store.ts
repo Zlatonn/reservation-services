@@ -5,7 +5,7 @@ interface OfficeId {
   setOfficeId: (id: string) => void;
 }
 
-export const useOfficeId = create<OfficeId>((set) => ({
+export const useOfficeIdStore = create<OfficeId>((set) => ({
   currentOfficeId: "",
   setOfficeId: (id: string) => set({ currentOfficeId: id }),
 }));

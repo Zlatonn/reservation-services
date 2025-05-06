@@ -1,10 +1,11 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { useGetAllServiceByOfficeId } from "@/hooks/use-api";
-import { useFormDialog } from "@/hooks/use-form-dialog";
-import { useOfficeId } from "@/hooks/use-officeId";
-import { translateCategory, translateServiceName } from "@/lib/translate";
-
 import { useEffect, useState } from "react";
+
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+import { translateCategory, translateServiceName } from "@/lib/translate";
+import { useGetAllServiceByOfficeId } from "@/hooks/use-api";
+import { useFormDialogStore } from "@/stores/use-form-dialog-store";
+import { useOfficeIdStore } from "@/stores/use-officeId-store";
 
 interface Service {
   id: string;
@@ -14,13 +15,13 @@ interface Service {
 
 export function ServicesTable() {
   // // Get current office ID
-  const { currentOfficeId } = useOfficeId();
+  const { currentOfficeId } = useOfficeIdStore();
 
   // // Fetch services by office ID
   const { data } = useGetAllServiceByOfficeId(currentOfficeId);
 
   // Import open dialog function
-  const { openDialog } = useFormDialog();
+  const { openDialog } = useFormDialogStore();
 
   // Create services state
   const [services, setServices] = useState<Service[]>([]);

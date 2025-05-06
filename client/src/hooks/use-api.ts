@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { usePagination } from "./use-pagination";
+import { usePaginationStore } from "../stores/use-pagination-store";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -99,8 +99,8 @@ export const useDeleteOffice = (id: string) => {
 };
 
 export const useGetAllServiceByOfficeId = (officeId: string) => {
-  // Import from usePagination
-  const { skip, take, setTotalCount } = usePagination();
+  // Import from usePaginationStore
+  const { skip, take, setTotalCount } = usePaginationStore();
   return useQuery({
     queryKey: ["serviceByofficeId", officeId, skip, take],
     queryFn: async () => {

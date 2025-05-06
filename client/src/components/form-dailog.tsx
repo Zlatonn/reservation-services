@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 
-import { useFormDialog } from "@/hooks/use-form-dialog";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,8 +22,10 @@ import CalendarCaption from "@/components/calendar-caption";
 import { CalendarIcon } from "lucide-react";
 
 import { formatThaiDate } from "@/lib/calendar-format";
+
 import { useCreateService, useDeleteService, useGetService, useUpdateService } from "@/hooks/use-api";
-import { useOfficeId } from "@/hooks/use-officeId";
+import { useOfficeIdStore } from "@/stores/use-officeId-store";
+import { useFormDialogStore } from "@/stores/use-form-dialog-store";
 
 // Mock up categories
 const categories = [
@@ -89,10 +90,10 @@ type FormSchema = z.infer<typeof formSchema>;
 
 export function FormDialog() {
   // get current office ID
-  const { currentOfficeId } = useOfficeId();
+  const { currentOfficeId } = useOfficeIdStore();
 
   // Import form dialog
-  const { id, isOpen, closeDialog } = useFormDialog();
+  const { id, isOpen, closeDialog } = useFormDialogStore();
 
   // Fetch service data
   const { data } = useGetService(id);

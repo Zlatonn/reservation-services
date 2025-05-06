@@ -7,7 +7,7 @@ interface FormDialog {
   closeDialog: () => void;
 }
 
-export const useFormDialog = create<FormDialog>((set) => ({
+export const useFormDialogStore = create<FormDialog>((set) => ({
   isOpen: false,
   id: "",
   openDialog: (id) => set({ isOpen: true, id }),

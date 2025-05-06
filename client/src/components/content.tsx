@@ -7,19 +7,19 @@ import { PaginationSelector } from "@/components/pagination-seclector";
 
 import { Plus, Search, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
-import { useFormDialog } from "@/hooks/use-form-dialog";
-import { useOfficeId } from "@/hooks/use-officeId";
-import { usePagination } from "@/hooks/use-pagination";
+import { useFormDialogStore } from "@/stores/use-form-dialog-store";
+import { useOfficeIdStore } from "@/stores/use-officeId-store";
+import { usePaginationStore } from "@/stores/use-pagination-store";
 
 const Content = () => {
   // Get current office ID
-  const { currentOfficeId } = useOfficeId();
+  const { currentOfficeId } = useOfficeIdStore();
 
   // Import open dialog function
-  const { openDialog } = useFormDialog();
+  const { openDialog } = useFormDialogStore();
 
-  // Import from usePagination
-  const { skip, take, totalCount, setSkip } = usePagination();
+  // Import from usePaginationStore
+  const { skip, take, totalCount, setSkip } = usePaginationStore();
 
   const currentPage = Math.floor(skip / take) + 1;
   const totalPage = Math.ceil(totalCount / take);

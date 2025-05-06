@@ -9,7 +9,7 @@ interface Pagination {
   setTotalCount: (total: number) => void;
 }
 
-export const usePagination = create<Pagination>((set) => ({
+export const usePaginationStore = create<Pagination>((set) => ({
   skip: 0,
   take: 10,
   totalCount: 0,
