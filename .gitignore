@@ -35,9 +35,9 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-# === dotenv files ===
-**/.env
-.env.*.local
+# === dotenv files === (disable for dev)
+# **/.env
+# .env.*.local
 
 # === temp/runtime data ===
 .temp
