@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { useForm } from "react-hook-form";
+import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -9,7 +9,7 @@ import { th } from "date-fns/locale";
 
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import Container from "@/components/container";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
+import { FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent } from "@/components/ui/popover";
@@ -18,6 +18,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import CalendarCaption from "@/components/calendar-caption";
+import { TimeSlotField } from "@/components/time-slots-field";
 
 import { CalendarIcon } from "lucide-react";
 
@@ -55,22 +56,30 @@ const serviceNames = [
 ];
 
 // Mock up weekdays
-const weekdays = [
-  { value: 0, label: "อาทิตย์" },
-  { value: 1, label: "จันทร์" },
-  { value: 2, label: "อังคาร" },
-  { value: 3, label: "พุธ" },
-  { value: 4, label: "พฤหัสบดี" },
-  { value: 5, label: "ศุกร์" },
-  { value: 6, label: "เสาร์" },
-];
+const weekdays = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
 
 // Create schemas
+// Time slot schema
+const timeSlotSchema = z.object({
+  id: z.string().optional(),
+  startAt: z
+    .string()
+    .min(1, "Start time is required")
+    .regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:mm)"),
+  endAt: z
+    .string()
+    .min(1, "End time is required")
+    .regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:mm)"),
+  available: z.number().int().min(1, "Must be at least 1"),
+  openingDayId: z.string().optional(),
+});
 
 // Opening schema
 const openingDaySchema = z.object({
   id: z.string().optional(),
   day: z.number().int().min(0, "Day must be between 0 and 6").max(6, "Day must be between 0 and 6"),
+  timeSlots: z.array(timeSlotSchema).min(1, "At least one timeslot is required"),
+  serviceId: z.string().optional(),
 });
 
 // Form schema
@@ -98,6 +107,7 @@ export function FormDialog() {
   // Fetch service data
   const { data } = useGetService(id);
 
+  // Another fetching api for create, update, delete
   const { mutate: createService } = useCreateService();
   const { mutate: updateService } = useUpdateService(id);
   const { mutate: deleteService } = useDeleteService(id);
@@ -114,6 +124,13 @@ export function FormDialog() {
       officeId: currentOfficeId,
     },
   });
+
+  // Define dynamic opening day field
+  const {
+    fields: openingDaysFields,
+    append: appendOpeningDay,
+    remove: removeOpeningDay,
+  } = useFieldArray({ control: form.control, name: "openingDays" });
 
   // Set form data
   useEffect(() => {
@@ -138,15 +155,31 @@ export function FormDialog() {
     }
   }, [isOpen, id, form, data, currentOfficeId]);
 
+  // Define array of selected day from openingDayFields
+  const selectedDays = openingDaysFields.map((f) => f.day);
+
+  // Handle toggle day
+  const handleToggleDay = (dayValue: number) => {
+    // Check current check status
+    const isSelected = selectedDays.includes(dayValue);
+    if (isSelected) {
+      // Find index of openingDaysFields to remove
+      const fieldIndexToRemove = openingDaysFields.findIndex((d) => d.day === dayValue);
+      removeOpeningDay(fieldIndexToRemove);
+    } else {
+      appendOpeningDay({
+        day: dayValue,
+        timeSlots: [{ startAt: "", endAt: "", available: 0 }],
+      });
+    }
+  };
+
   // Handle submit form
   const onSubmit = (value: z.infer<typeof formSchema>) => {
     if (id) {
       updateService({
         ...value,
         reservableDate: new Date(value.reservableDate),
-        openingDays: value.openingDays.map((d) => ({
-          day: d.day,
-        })),
       });
     } else {
       createService({
@@ -174,7 +207,7 @@ export function FormDialog() {
 
           {/* Content */}
           <Container className="px-5">
-            <Form {...form}>
+            <FormProvider {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 {/* Cetegory field*/}
                 <FormField
@@ -271,39 +304,26 @@ export function FormDialog() {
                 />
 
                 {/* Openning day field*/}
-                <FormField
-                  control={form.control}
-                  name="openingDays"
-                  render={() => (
-                    <FormItem className="flex flex-col sm:flex-row sm:items-start">
-                      <FormLabel className="text-nowrap w-40">วันที่เปิดทำงาน</FormLabel>
-                      <div className="w-full flex flex-col gap-2">
-                        {weekdays.map((wd, i) => (
-                          <FormField
-                            key={`wd-${i}`}
-                            control={form.control}
-                            name="openingDays"
-                            render={({ field }) => (
-                              <FormItem className="flex">
-                                <FormControl>
-                                  <Checkbox
-                                    checked={field.value?.some((day) => day.day === wd.value)}
-                                    onCheckedChange={(checked) => {
-                                      return checked
-                                        ? field.onChange([...field.value, { day: wd.value }])
-                                        : field.onChange(field.value?.filter((day) => day.day !== wd.value));
-                                    }}
-                                  />
-                                </FormControl>
-                                <FormLabel className="font-normal">{wd.label}</FormLabel>
-                              </FormItem>
-                            )}
-                          />
-                        ))}
-                      </div>
-                    </FormItem>
-                  )}
-                />
+                <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row sm:items-start">
+                  <FormLabel className="text-nowrap w-40">วันที่เปิดทำงาน</FormLabel>
+                  <div className="w-full flex flex-col gap-2">
+                    {weekdays.map((day, value) => {
+                      // Find openingDayFieldIndex
+                      const openingDayFieldIndex = openingDaysFields.findIndex((field) => field.day === value);
+                      return (
+                        <div key={`day-${value}`} className="flex flex-col gap-2">
+                          <div className="flex items-center gap-2">
+                            <Checkbox checked={selectedDays.includes(value)} onCheckedChange={() => handleToggleDay(value)} />
+                            <FormLabel>{day}</FormLabel>
+                          </div>
+                          {openingDayFieldIndex !== -1 && (
+                            <TimeSlotField key={`timeslot-${openingDayFieldIndex}`} dayIndex={openingDayFieldIndex} />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
                 {/* Description field */}
                 <FormField
@@ -339,7 +359,7 @@ export function FormDialog() {
                   </Button>
                 </div>
               </form>
-            </Form>
+            </FormProvider>
           </Container>
         </DialogHeader>
       </DialogContent>
