@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client"
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common"
 import { CreateServiceDto } from "./dto/create-service.dto"
 import { PrismaService } from "src/prisma.service"
@@ -8,7 +9,7 @@ export class ServicesService {
 	constructor(private prisma: PrismaService) {}
 
 	async createService(serviceData: CreateServiceDto) {
-		return await this.prisma.$transaction(async (tx) => {
+		return await this.prisma.$transaction(async (tx: Prisma.TransactionClient) => {
 			// check office exists
 			const foundOffice = await tx.office.findUnique({ where: { id: serviceData.officeId } })
 			if (!foundOffice) throw new NotFoundException("Office not found")
@@ -37,7 +38,7 @@ export class ServicesService {
 
 			// create opening days
 			for (const openingDayData of serviceData.openingDays || []) {
-				await tx.openingDay.create({
+				const openingDay = await tx.openingDay.create({
 					data: {
 						day: openingDayData.day,
 						service: {
@@ -45,13 +46,31 @@ export class ServicesService {
 						},
 					},
 				})
+
+				// create timeslots
+				for (const timeSlotData of openingDayData.timeSlots || []) {
+					await tx.timeSlot.create({
+						data: {
+							startAt: timeSlotData.startAt,
+							endAt: timeSlotData.endAt,
+							available: timeSlotData.available,
+							openingDay: {
+								connect: { id: openingDay.id },
+							},
+						},
+					})
+				}
 			}
 
 			// Adjust result pattern
 			const result = await tx.service.findUnique({
 				where: { id: service.id },
 				include: {
-					openingDays: true,
+					openingDays: {
+						include: {
+							timeSlots: true,
+						},
+					},
 				},
 			})
 
@@ -69,7 +88,11 @@ export class ServicesService {
 		const result = await this.prisma.service.findUnique({
 			where: { id },
 			include: {
-				openingDays: true,
+				openingDays: {
+					include: {
+						timeSlots: true,
+					},
+				},
 			},
 		})
 
@@ -102,7 +125,7 @@ export class ServicesService {
 				uniqueDays.add(openingDayData.day)
 			}
 
-			// reset opening day
+			// reset opening day & timeslot
 			await tx.openingDay.deleteMany({
 				where: { serviceId: id },
 			})
@@ -123,7 +146,7 @@ export class ServicesService {
 
 			// create opening days
 			for (const openingDayData of serviceData.openingDays || []) {
-				await tx.openingDay.create({
+				const openingDay = await tx.openingDay.create({
 					data: {
 						day: openingDayData.day,
 						service: {
@@ -131,13 +154,31 @@ export class ServicesService {
 						},
 					},
 				})
+
+				// create timeslots
+				for (const timeSlotData of openingDayData.timeSlots || []) {
+					await tx.timeSlot.create({
+						data: {
+							startAt: timeSlotData.startAt,
+							endAt: timeSlotData.endAt,
+							available: timeSlotData.available,
+							openingDay: {
+								connect: { id: openingDay.id },
+							},
+						},
+					})
+				}
 			}
 
 			// Adjust result pattern
 			const result = await tx.service.findUnique({
 				where: { id: service.id },
 				include: {
-					openingDays: true,
+					openingDays: {
+						include: {
+							timeSlots: true,
+						},
+					},
 				},
 			})
 
