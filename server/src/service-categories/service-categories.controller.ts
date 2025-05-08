@@ -26,4 +26,9 @@ export class ServiceCategoryController {
 	delete(@Param("id") id: string) {
 		return this.serviceCategoryService.deleteServiceCategory(id)
 	}
+
+	@Get(":id/service-names")
+	findAllServiceNamesById(@Param("id") id: string) {
+		return this.serviceCategoryService.getServiceNamesByServiceCategoryId(id)
+	}
 }
