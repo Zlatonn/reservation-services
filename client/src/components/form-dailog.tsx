@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { FormProvider, useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -24,36 +24,16 @@ import { CalendarIcon } from "lucide-react";
 
 import { formatThaiDate } from "@/lib/calendar-format";
 
-import { useCreateService, useDeleteService, useGetService, useUpdateService } from "@/hooks/use-api";
+import {
+  useCreateService,
+  useDeleteService,
+  useGetAllServiceNamesByServiceCategoryId,
+  useGetService,
+  useGetServiceCategories,
+  useUpdateService,
+} from "@/hooks/use-api";
 import { useOfficeIdStore } from "@/stores/use-officeId-store";
 import { useFormDialogStore } from "@/stores/use-form-dialog-store";
-
-// Mock up categories
-const categories = [
-  { value: "REGISTRATION", label: "งานทะเบียน" },
-  { value: "LICENSE", label: "งานใบอนุญาต" },
-  { value: "FOREIGN_LICENSE", label: "ใบอนุญาตขับขี่ชาวต่างชาติ" },
-  { value: "PERSONAL_LICENSE", label: "ใบอนุญาตขับขี่ส่วนบุคคล" },
-  { value: "PUBLIC_LICENSE", label: "ใบอนุญาตขับรถสาธารณะ" },
-  { value: "TRANSPORT_LAW_LICENSE", label: "สอบกฎหมายขนส่ง" },
-  { value: "POINT_TRAINING", label: "อบรมตัดแต้ม" },
-  { value: "OTHER_SERVICES", label: "บริการอื่น ๆ" },
-];
-
-// Mock up services
-const serviceNames = [
-  { value: "TAX_PAYMENT", label: "ชำระภาษี" },
-  { value: "VEHICLE_MOVE_OUT", label: "แจ้งย้ายรถออก" },
-  { value: "VEHICLE_UNUSED", label: "แจ้งไม่ใช้รถ" },
-  { value: "DUP_REGISTRATION_BOOK", label: "ขอเล่มทะเบียนใหม่" },
-  { value: "DUP_TAX_STICKER", label: "ขอป้ายภาษีใหม่" },
-  { value: "DUP_LICENSE_PLATE", label: "ขอป้ายทะเบียนใหม่" },
-  { value: "LEASING_TRANSFER", label: "โอนรถเช่าซื้อ" },
-  { value: "TAXI_RETIRE", label: "แจ้งเลิกใช้แท็กซี่" },
-  { value: "VEHICLE_MODIFICATION", label: "แจ้งเปลี่ยนแปลงรถ" },
-  { value: "VEHICLE_MOVE_IN", label: "แจ้งย้ายรถเข้า" },
-  { value: "OWNER_INFO_UPDATE", label: "เปลี่ยนข้อมูลเจ้าของรถ" },
-];
 
 // Mock up weekdays
 const weekdays = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
@@ -97,20 +77,42 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
+interface ServiceCategories {
+  id: string;
+  name: string;
+}
+
+interface ServiceNames {
+  id: string;
+  name: string;
+}
+
 export function FormDialog() {
-  // get current office ID
+  // Get current office ID
   const { currentOfficeId } = useOfficeIdStore();
 
   // Import form dialog
   const { id, isOpen, closeDialog } = useFormDialogStore();
 
+  // State to track edit mode
+  const isEditMode = Boolean(id);
+
   // Fetch service data
-  const { data } = useGetService(id);
+  const { data: serviceData, isLoading: isServiceLoading } = useGetService(id);
 
   // Another fetching api for create, update, delete
   const { mutate: createService } = useCreateService();
   const { mutate: updateService } = useUpdateService(id);
   const { mutate: deleteService } = useDeleteService(id);
+
+  // State for selected category ID
+  const [currentServiceCategoryId, setCurrentServiceCategoryId] = useState<string>("");
+
+  // Fetch categories data
+  const { data: categoriesData, isLoading: isCategoriesLoading } = useGetServiceCategories();
+
+  // Fetch service name data
+  const { data: serviceNamesData, isLoading: isServiceNamesLoading } = useGetAllServiceNamesByServiceCategoryId(currentServiceCategoryId);
 
   // Create form using react hook form with empty value
   const form = useForm<FormSchema>({
@@ -132,18 +134,18 @@ export function FormDialog() {
     remove: removeOpeningDay,
   } = useFieldArray({ control: form.control, name: "openingDays" });
 
-  // Set form data
+  // Flag to prevent multiple initialization
+  const [formInitialized, setFormInitialized] = useState(false);
+
+  // Reset form when dialog opens/closes and clear initialization
   useEffect(() => {
-    if (isOpen && id && data) {
-      form.reset({
-        category: data.category || "",
-        name: data.name || "",
-        reservableDate: data.reservableDate || "",
-        openingDays: data.openingDays || [],
-        description: data.description || "",
-        officeId: data.officeId || currentOfficeId,
-      });
-    } else {
+    if (!isOpen) {
+      setFormInitialized(false);
+      form.reset();
+      return;
+    }
+    // Initialize with empty form for create mode
+    if (!isEditMode) {
       form.reset({
         category: "",
         name: "",
@@ -152,8 +154,67 @@ export function FormDialog() {
         description: "",
         officeId: currentOfficeId,
       });
+      setCurrentServiceCategoryId("");
+      setFormInitialized(true);
     }
-  }, [isOpen, id, form, data, currentOfficeId]);
+  }, [isOpen, isEditMode, currentOfficeId, form]);
+
+  // Handle edit mode initialization
+  useEffect(() => {
+    // Only proceed if dialog is open, edit mode, not initialized, and have all required data
+    if (!isOpen || !isEditMode || formInitialized || isServiceLoading || isCategoriesLoading || !serviceData || !categoriesData) {
+      return;
+    }
+
+    // Find the category ID based on the category name from service data
+    const categoryObj = categoriesData.find((c: ServiceCategories) => c.name === serviceData.category);
+
+    if (categoryObj) {
+      // Set the category ID first => service names can load
+      setCurrentServiceCategoryId(categoryObj.id);
+    }
+  }, [isOpen, isEditMode, formInitialized, isServiceLoading, isCategoriesLoading, serviceData, categoriesData]);
+
+  // Initialize form after service names are loaded
+  useEffect(() => {
+    // Only proceed if dialog is open, edit mode, not initialized, category ID is set, and service names are loaded
+    if (
+      !isOpen ||
+      !isEditMode ||
+      formInitialized ||
+      !currentServiceCategoryId ||
+      isServiceNamesLoading ||
+      !serviceData ||
+      !serviceNamesData
+    ) {
+      return;
+    }
+
+    // Little delay && Reset the form with all data
+    setTimeout(() => {
+      form.reset({
+        id: serviceData.id,
+        category: serviceData.category || "",
+        name: serviceData.name || "",
+        reservableDate: serviceData.reservableDate || "",
+        openingDays: serviceData.openingDays || [],
+        description: serviceData.description || "",
+        officeId: serviceData.officeId || currentOfficeId,
+      });
+
+      setFormInitialized(true);
+    }, 50);
+  }, [
+    isOpen,
+    isEditMode,
+    formInitialized,
+    currentServiceCategoryId,
+    serviceData,
+    serviceNamesData,
+    isServiceNamesLoading,
+    form,
+    currentOfficeId,
+  ]);
 
   // Define array of selected day from openingDayFields
   const selectedDays = openingDaysFields.map((f) => f.day);
@@ -176,25 +237,42 @@ export function FormDialog() {
 
   // Handle submit form
   const onSubmit = (value: z.infer<typeof formSchema>) => {
-    if (id) {
+    if (isEditMode) {
+      console.log("update", value);
       updateService({
         ...value,
         reservableDate: new Date(value.reservableDate),
       });
+
+      alert("อัพเดทข้อมูลสำเร็จ");
     } else {
       createService({
         ...value,
         reservableDate: new Date(value.reservableDate),
       });
+      alert("บันทึกข้อมูลสำเร็จ");
     }
-
     closeDialog();
   };
 
   // Handle delete
   const onDelete = () => {
     deleteService();
+    alert("ลบข้อมูลสำเร็จ");
     closeDialog();
+  };
+
+  // Handle category change
+  const handleCategoryChange = (categoryName: string) => {
+    form.setValue("category", categoryName);
+    form.setValue("name", ""); // Reset the service name when category changes
+
+    if (!categoriesData) return;
+
+    const found = categoriesData.find((c: ServiceCategories) => c.name === categoryName);
+    if (found) {
+      setCurrentServiceCategoryId(found.id);
+    }
   };
 
   return (
@@ -214,22 +292,22 @@ export function FormDialog() {
                   control={form.control}
                   name="category"
                   render={({ field }) => (
-                    <FormItem className="flex flex-col sm:flex-row">
+                    <FormItem className="flex flex-col sm:flex-row items-center gap-2">
                       <FormLabel className="text-nowrap w-40">กลุ่มงาน</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
+                      <FormControl className="w-full">
+                        <Select onValueChange={handleCategoryChange} value={field.value} disabled={isCategoriesLoading}>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="--กรุณาเลือกประเภทกลุ่มงาน--" />
                           </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {categories.map((category, i) => (
-                            <SelectItem key={`category-${i}`} value={category.value}>
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          <SelectContent>
+                            {categoriesData?.map((category: ServiceCategories, i: number) => (
+                              <SelectItem key={`category-${i}`} value={category.name}>
+                                {category.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
                     </FormItem>
                   )}
                 />
@@ -241,20 +319,24 @@ export function FormDialog() {
                   render={({ field }) => (
                     <FormItem className="flex flex-col sm:flex-row">
                       <FormLabel className="text-nowrap w-40">ชื่อประเภทงาน</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl className="flex-grow">
+                      <FormControl className="flex-grow">
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                          disabled={!form.watch("category") || isServiceNamesLoading}
+                        >
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="--กรุณาเลือกประเภทชื่อประเภทงาน--" />
                           </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {serviceNames.map((name, i) => (
-                            <SelectItem key={`service-${i}`} value={name.value}>
-                              {name.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                          <SelectContent>
+                            {serviceNamesData?.map((name: ServiceNames, i: number) => (
+                              <SelectItem key={`service-${i}`} value={name.name}>
+                                {name.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
                     </FormItem>
                   )}
                 />
