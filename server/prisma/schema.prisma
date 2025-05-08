@@ -43,3 +43,16 @@ model TimeSlot {
   openingDay   OpeningDay @relation(fields: [openingDayId], references: [id], onDelete: Cascade)
   openingDayId String
 }
+
+model ServiceCatetory {
+  id           String        @id @default(uuid())
+  name         String        @unique
+  serviceNames ServiceName[]
+}
+
+model ServiceName {
+  id                String          @id @default(uuid())
+  name              String          @unique
+  serviceCategory   ServiceCatetory @relation(fields: [serviceCategoryId], references: [id], onDelete: Cascade)
+  serviceCategoryId String
+}
