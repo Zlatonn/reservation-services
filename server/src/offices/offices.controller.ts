@@ -2,10 +2,14 @@ import { Controller, Get, Post, Body, Param, Patch, Delete, Query } from "@nestj
 import { OfficesService } from "./offices.service"
 import { CreateOfficeDto } from "./dto/create-office.dto"
 import { UpdateOfficeDto } from "./dto/update-office.dto"
+import { ServicesService } from "src/services/services.service"
 
 @Controller("offices")
 export class OfficesController {
-	constructor(private readonly officesService: OfficesService) {}
+	constructor(
+		private readonly officesService: OfficesService,
+		private readonly servicesService: ServicesService,
+	) {}
 
 	@Post()
 	create(@Body() createOfficeDto: CreateOfficeDto) {
@@ -36,6 +40,6 @@ export class OfficesController {
 	findAllServicesById(@Param("id") id: string, @Query("skip") skip?: string, @Query("take") take?: string) {
 		const parsedSkip = parseInt(skip ?? "0", 10)
 		const parsedTake = parseInt(take ?? "10", 10)
-		return this.officesService.getServicesByOfficeId(id, parsedSkip, parsedTake)
+		return this.servicesService.getServicesByOfficeId(id, parsedSkip, parsedTake)
 	}
 }

@@ -2,14 +2,10 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { CreateOfficeDto } from "./dto/create-office.dto"
 import { PrismaService } from "src/prisma.service"
 import { UpdateOfficeDto } from "./dto/update-office.dto"
-import { ServicesService } from "src/services/services.service"
 
 @Injectable()
 export class OfficesService {
-	constructor(
-		private prisma: PrismaService,
-		private service: ServicesService,
-	) {}
+	constructor(private prisma: PrismaService) {}
 
 	async createOffice(officeData: CreateOfficeDto) {
 		// check office unique
@@ -81,36 +77,6 @@ export class OfficesService {
 			statusCode: 204,
 			message: "Office deleted",
 			data: result,
-		}
-	}
-
-	async getServicesByOfficeId(id: string, skip: number, take: number) {
-		// check office not found
-		const foundOffice = await this.prisma.office.findUnique({ where: { id } })
-		if (!foundOffice) throw new NotFoundException("Office not found")
-
-		const [result, totalCount] = await Promise.all([
-			// Fin data of services where  officeId = id
-			this.prisma.service.findMany({
-				where: { officeId: id },
-				skip,
-				take,
-				select: {
-					id: true,
-					category: true,
-					name: true,
-				},
-			}),
-
-			// Find count of services where  officeId = id
-			this.prisma.service.count({ where: { officeId: id } }),
-		])
-
-		return {
-			statusCode: 200,
-			message: "Services received",
-			data: result,
-			totalCount,
 		}
 	}
 }
