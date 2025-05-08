@@ -10,12 +10,12 @@ export class ServiceCategoryService {
 
 	async createServiceCateory(serviceCategoryData: CreateServiceCategoryDto) {
 		// check service category unique
-		const serviceCategoryExists = await this.prisma.serviceCatetory.findUnique({
+		const serviceCategoryExists = await this.prisma.serviceCategory.findUnique({
 			where: { name: serviceCategoryData.name },
 		})
 		if (serviceCategoryExists) throw new ConflictException("Service category must be unique")
 
-		const result = await this.prisma.serviceCatetory.create({ data: serviceCategoryData })
+		const result = await this.prisma.serviceCategory.create({ data: serviceCategoryData })
 
 		// return when success
 		return {
@@ -26,7 +26,7 @@ export class ServiceCategoryService {
 	}
 
 	async findAllServiceCategories() {
-		const result = await this.prisma.serviceCatetory.findMany()
+		const result = await this.prisma.serviceCategory.findMany()
 
 		// return when success
 		return {
@@ -38,16 +38,16 @@ export class ServiceCategoryService {
 
 	async updateServiceCategory(id: string, serviceCategoryData: UpdateServiceCategoryDto) {
 		// check service category not found
-		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({ where: { id } })
+		const foundServiceCategory = await this.prisma.serviceCategory.findUnique({ where: { id } })
 		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
 
 		// check service category unique
-		const serviceCategoryExists = await this.prisma.serviceCatetory.findUnique({
+		const serviceCategoryExists = await this.prisma.serviceCategory.findUnique({
 			where: { name: serviceCategoryData.name },
 		})
 		if (serviceCategoryExists) throw new ConflictException("Service category must be unique")
 
-		const result = await this.prisma.serviceCatetory.update({ where: { id }, data: serviceCategoryData })
+		const result = await this.prisma.serviceCategory.update({ where: { id }, data: serviceCategoryData })
 
 		// return when success
 		return {
@@ -59,10 +59,10 @@ export class ServiceCategoryService {
 
 	async deleteServiceCategory(id: string) {
 		// check service category not found
-		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({ where: { id } })
+		const foundServiceCategory = await this.prisma.serviceCategory.findUnique({ where: { id } })
 		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
 
-		const result = await this.prisma.serviceCatetory.delete({ where: { id } })
+		const result = await this.prisma.serviceCategory.delete({ where: { id } })
 		return {
 			statusCode: 204,
 			message: "Service category deleted",

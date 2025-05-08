@@ -9,7 +9,7 @@ export class ServiceNamesService {
 
 	async createServiceName(serviceNameData: CreateServiceNameDto) {
 		// check service category exists
-		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({
+		const foundServiceCategory = await this.prisma.serviceCategory.findUnique({
 			where: { id: serviceNameData.serviceCategoryId },
 		})
 		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
@@ -50,7 +50,7 @@ export class ServiceNamesService {
 
 	async updateServiceName(id: string, serviceNameData: UpdateServiceNameDto) {
 		// check service category exists
-		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({
+		const foundServiceCategory = await this.prisma.serviceCategory.findUnique({
 			where: { id: serviceNameData.serviceCategoryId },
 		})
 		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
@@ -99,7 +99,7 @@ export class ServiceNamesService {
 
 	async getServiceNamesByServiceCategoryId(serviceCategoryId: string) {
 		// check service category not found
-		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({ where: { id: serviceCategoryId } })
+		const foundServiceCategory = await this.prisma.serviceCategory.findUnique({ where: { id: serviceCategoryId } })
 		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
 
 		const result = await this.prisma.serviceName.findMany({
