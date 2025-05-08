@@ -2,14 +2,11 @@ import { ConflictException, Injectable, NotFoundException } from "@nestjs/common
 import { CreateServiceCategoryDto } from "./dto/create-service-category.dto"
 import { UpdateServiceCategoryDto } from "./dto/update-service-category.dto"
 import { PrismaService } from "src/prisma.service"
-import { ServiceNamesService } from "src/service-names/service-names.service"
+// import { ServiceNamesService } from "src/service-names/service-names.service"
 
 @Injectable()
 export class ServiceCategoryService {
-	constructor(
-		private readonly prisma: PrismaService,
-		private readonly serviceName: ServiceNamesService,
-	) {}
+	constructor(private readonly prisma: PrismaService) {}
 
 	async createServiceCateory(serviceCategoryData: CreateServiceCategoryDto) {
 		// check service category unique
@@ -69,25 +66,6 @@ export class ServiceCategoryService {
 		return {
 			statusCode: 204,
 			message: "Service category deleted",
-			data: result,
-		}
-	}
-
-	async getServiceNamesByServiceCategoryId(id: string) {
-		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({ where: { id } })
-		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
-
-		const result = await this.prisma.serviceName.findMany({
-			where: { serviceCategoryId: id },
-			select: {
-				id: true,
-				name: true,
-			},
-		})
-
-		return {
-			statusCode: 200,
-			message: "Service names received",
 			data: result,
 		}
 	}

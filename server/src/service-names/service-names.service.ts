@@ -88,10 +88,32 @@ export class ServiceNamesService {
 		const foundServiceName = await this.prisma.serviceName.findUnique({ where: { id } })
 		if (!foundServiceName) throw new NotFoundException("Service category not found")
 
+		// return when success
 		const result = await this.prisma.serviceName.delete({ where: { id } })
 		return {
 			statusCode: 204,
 			message: "Service name deleted",
+			data: result,
+		}
+	}
+
+	async getServiceNamesByServiceCategoryId(serviceCategoryId: string) {
+		// check service category not found
+		const foundServiceCategory = await this.prisma.serviceCatetory.findUnique({ where: { id: serviceCategoryId } })
+		if (!foundServiceCategory) throw new NotFoundException("Service category not found")
+
+		const result = await this.prisma.serviceName.findMany({
+			where: { serviceCategoryId },
+			select: {
+				id: true,
+				name: true,
+			},
+		})
+
+		// return when success
+		return {
+			statusCode: 200,
+			message: "Service names received",
 			data: result,
 		}
 	}
