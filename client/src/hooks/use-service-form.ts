@@ -93,16 +93,18 @@ export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeD
     }
     // Initialize with empty form for create mode
     if (!isEditMode) {
-      form.reset({
-        category: "",
-        name: "",
-        reservableDate: "",
-        openingDays: [],
-        description: "",
-        officeId: officeId,
-      });
-      setCurrentServiceCategoryId("");
-      setFormInitialized(true);
+      setTimeout(() => {
+        form.reset({
+          category: "",
+          name: "",
+          reservableDate: "",
+          openingDays: [],
+          description: "",
+          officeId: officeId,
+        });
+        setCurrentServiceCategoryId("");
+        setFormInitialized(true);
+      }, 0);
     }
   }, [isOpen, isEditMode, officeId, form]);
 
@@ -175,12 +177,10 @@ export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeD
   // Handle submit form
   const onSubmit = (value: FormSchema) => {
     if (isEditMode) {
-      console.log("update", value);
       updateService({
         ...value,
         reservableDate: new Date(value.reservableDate),
       });
-
       toast.success("อัพเดทข้อมูลสำเร็จ");
     } else {
       createService({
