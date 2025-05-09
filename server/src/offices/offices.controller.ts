@@ -37,9 +37,14 @@ export class OfficesController {
 	}
 
 	@Get(":id/services")
-	findAllServicesById(@Param("id") id: string, @Query("skip") skip?: string, @Query("take") take?: string) {
+	findAllServicesById(
+		@Param("id") id: string,
+		@Query("skip") skip?: string,
+		@Query("take") take?: string,
+		@Query("search") search?: string,
+	) {
 		const parsedSkip = parseInt(skip ?? "0", 10)
 		const parsedTake = parseInt(take ?? "10", 10)
-		return this.servicesService.getServicesByOfficeId(id, parsedSkip, parsedTake)
+		return this.servicesService.getServicesByOfficeId(id, parsedSkip, parsedTake, search)
 	}
 }

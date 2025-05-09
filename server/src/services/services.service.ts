@@ -206,15 +206,28 @@ export class ServicesService {
 		}
 	}
 
-	async getServicesByOfficeId(officeId: string, skip: number, take: number) {
+	async getServicesByOfficeId(officeId: string, skip: number, take: number, search?: string) {
 		// check office not found
 		const foundOffice = await this.prisma.office.findUnique({ where: { id: officeId } })
 		if (!foundOffice) throw new NotFoundException("Office not found")
 
+		// Initial set up where condition with where office Id
+		const where: Prisma.ServiceWhereInput = {
+			officeId,
+		}
+
+		// Add search condition if search term is provided
+		if (search) {
+			where.name = {
+				contains: search,
+				mode: "insensitive",
+			}
+		}
+
 		const [result, totalCount] = await Promise.all([
 			// Fin data of services where  officeId = id
 			this.prisma.service.findMany({
-				where: { officeId },
+				where,
 				skip,
 				take,
 				select: {
@@ -225,7 +238,7 @@ export class ServicesService {
 			}),
 
 			// Find count of services where  officeId = id
-			this.prisma.service.count({ where: { officeId } }),
+			this.prisma.service.count({ where }),
 		])
 
 		return {
