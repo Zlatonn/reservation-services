@@ -1,6 +1,9 @@
 import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useDebounce } from "use-debounce";
+
 import { usePaginationStore } from "../stores/use-pagination-store";
+import { useSearchStore } from "@/stores/use-search-store";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -101,11 +104,18 @@ export const useDeleteOffice = (id: string) => {
 export const useGetAllServiceByOfficeId = (officeId: string) => {
   // Import from usePaginationStore
   const { skip, take, setTotalCount } = usePaginationStore();
+
+  // Import useSearchStore
+  const { search } = useSearchStore();
+
+  // Debounce search using useDebounce
+  const [debouncedSearch] = useDebounce(search, 500);
+
   return useQuery({
-    queryKey: ["serviceByofficeId", officeId, skip, take],
+    queryKey: ["serviceByofficeId", officeId, skip, take, debouncedSearch],
     queryFn: async () => {
       try {
-        const response = await axiosClient.get(`/offices/${officeId}/services`, { params: { skip, take } });
+        const response = await axiosClient.get(`/offices/${officeId}/services`, { params: { skip, take, search: debouncedSearch } });
         // Set total count of service
         setTotalCount(response.data.totalCount);
         return response.data.data;
