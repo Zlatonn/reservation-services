@@ -33,6 +33,7 @@ export function FormDialog() {
     openingDaysFields,
     onSubmit,
     onDelete,
+    isLoading,
   } = useServiceForm({
     officeId: currentOfficeId,
     serviceId: id,
@@ -51,6 +52,8 @@ export function FormDialog() {
 
           {/* Content */}
           <Container className="px-5">
+            {isLoading && <div className="absolute inset-0 flex items-center justify-center bg-white/70 z-10">Loding...</div>}
+
             <FormProvider {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <ServiceFormFields

@@ -5,6 +5,7 @@ import Container from "./components/container";
 import Content from "./components/content";
 import { SidebarProvider, SidebarTrigger } from "./components/ui/sidebar";
 import { FormDialog } from "./components/form-dailog";
+import { ToastContainer, Bounce } from "react-toastify";
 
 // Create QueryClient client for use react query in app
 const queryClient = new QueryClient();
@@ -27,6 +28,21 @@ function App() {
 
           {/* Form dialog component */}
           <FormDialog />
+
+          {/* Toast notification container */}
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar
+            newestOnTop={false}
+            closeOnClick={false}
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="colored"
+            transition={Bounce}
+          />
         </main>
       </SidebarProvider>
     </QueryClientProvider>

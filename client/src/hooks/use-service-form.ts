@@ -13,24 +13,53 @@ import { formSchema, FormSchema } from "@/schemas/service-schema";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ServiceCategories, UseServiceFormProps } from "@/types/types";
+import { toast } from "react-toastify";
 
 export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeDialog }: UseServiceFormProps) => {
-  // Fetch service data
-  const { data: serviceData, isLoading: isServiceLoading } = useGetService(serviceId);
-
-  // Another fetching api for create, update, delete
-  const { mutate: createService } = useCreateService();
-  const { mutate: updateService } = useUpdateService(serviceId);
-  const { mutate: deleteService } = useDeleteService(serviceId);
-
   // State for selected category ID
   const [currentServiceCategoryId, setCurrentServiceCategoryId] = useState<string>("");
 
-  // Fetch categories data
-  const { data: categoriesData, isLoading: isCategoriesLoading } = useGetServiceCategories();
+  // API hook with error handling
+  const { data: serviceData, isLoading: isServiceLoading, error: serviceError } = useGetService(serviceId);
+  const { data: categoriesData, isLoading: isCategoriesLoading, error: categoriesError } = useGetServiceCategories();
+  const {
+    data: serviceNamesData,
+    isLoading: isServiceNamesLoading,
+    error: serviceNamesError,
+  } = useGetAllServiceNamesByServiceCategoryId(currentServiceCategoryId);
+  const { mutate: createService, isPending: isCreating, error: createError } = useCreateService();
+  const { mutate: updateService, isPending: isUpdating, error: updateError } = useUpdateService(serviceId);
+  const { mutate: deleteService, isPending: isDeleting, error: deleteError } = useDeleteService(serviceId);
 
-  // Fetch service name data
-  const { data: serviceNamesData, isLoading: isServiceNamesLoading } = useGetAllServiceNamesByServiceCategoryId(currentServiceCategoryId);
+  // Handle API errors
+  useEffect(() => {
+    if (serviceError) {
+      toast.error(`ไม่สามารถโหลดข้อมูลได้: ${serviceError.message}`);
+    }
+
+    if (categoriesError) {
+      toast.error(`ไม่สามารถโหลดประเภทกลุ่มงานได้: ${categoriesError.message}`);
+    }
+
+    if (serviceNamesError && currentServiceCategoryId) {
+      toast.error(`ไม่สามารถโหลดชื่อประเภทงานได้: ${serviceNamesError.message}`);
+    }
+
+    if (createError) {
+      toast.error(`ไม่สามารถบันทึกข้อมูลได้: ${createError.message}`);
+    }
+
+    if (updateError) {
+      toast.error(`ไม่สามารถอัพเดทข้อมูลได้: ${updateError.message}`);
+    }
+
+    if (deleteError) {
+      toast.error(`ไม่สามารถลบข้อมูลได้: ${deleteError.message}`);
+    }
+  }, [serviceError, categoriesError, serviceNamesError, createError, updateError, deleteError, currentServiceCategoryId]);
+
+  // Calculate overall loading state
+  const isLoading = isServiceLoading || isCategoriesLoading || isServiceNamesLoading || isCreating || isUpdating || isDeleting;
 
   // Create form using react hook form with empty value
   const form = useForm<FormSchema>({
@@ -152,13 +181,13 @@ export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeD
         reservableDate: new Date(value.reservableDate),
       });
 
-      alert("อัพเดทข้อมูลสำเร็จ");
+      toast.success("อัพเดทข้อมูลสำเร็จ");
     } else {
       createService({
         ...value,
         reservableDate: new Date(value.reservableDate),
       });
-      alert("บันทึกข้อมูลสำเร็จ");
+      toast.success("บันทึกข้อมูลสำเร็จ");
     }
     closeDialog();
   };
@@ -169,7 +198,7 @@ export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeD
     if (!confirmed) return;
 
     deleteService();
-    alert("ลบข้อมูลสำเร็จ");
+    toast.success("ลบข้อมูลสำเร็จ");
     closeDialog();
   };
 
@@ -198,5 +227,6 @@ export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeD
     onDelete,
     handleCategoryChange,
     handleToggleDay,
+    isLoading,
   };
 };
