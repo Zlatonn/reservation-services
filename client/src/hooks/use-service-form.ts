@@ -9,19 +9,12 @@ import {
   useUpdateService,
 } from "@/hooks/use-api";
 
-import { formSchema, FormSchema, ServiceCategories } from "@/schemas/service-schema";
+import { formSchema, FormSchema } from "@/schemas/service-schema";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ServiceCategories, UseServiceFormProps } from "@/types/types";
 
-interface UseServiceForm {
-  officeId: string;
-  serviceId: string;
-  isOpen: boolean;
-  isEditMode: boolean;
-  closeDialog: () => void;
-}
-
-export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeDialog }: UseServiceForm) => {
+export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeDialog }: UseServiceFormProps) => {
   // Fetch service data
   const { data: serviceData, isLoading: isServiceLoading } = useGetService(serviceId);
 

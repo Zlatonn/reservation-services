@@ -1,11 +1,8 @@
 import { create } from "zustand";
 
-interface OfficeId {
-  currentOfficeId: string;
-  setOfficeId: (id: string) => void;
-}
+import { UseOfficeIdStore } from "@/types/types";
 
-export const useOfficeIdStore = create<OfficeId>((set) => ({
+export const useOfficeIdStore = create<UseOfficeIdStore>((set) => ({
   currentOfficeId: "",
   setOfficeId: (id: string) => set({ currentOfficeId: id }),
 }));

@@ -1,15 +1,7 @@
+import { UsePaginationStore } from "@/types/types";
 import { create } from "zustand";
 
-interface Pagination {
-  skip: number;
-  take: number;
-  totalCount: number;
-  setSkip: (skip: number) => void;
-  setTake: (take: number) => void;
-  setTotalCount: (total: number) => void;
-}
-
-export const usePaginationStore = create<Pagination>((set) => ({
+export const usePaginationStore = create<UsePaginationStore>((set) => ({
   skip: 0,
   take: 10,
   totalCount: 0,

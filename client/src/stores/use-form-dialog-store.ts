@@ -1,13 +1,8 @@
 import { create } from "zustand";
 
-interface FormDialog {
-  isOpen: boolean;
-  id: string;
-  openDialog: (id?: string) => void;
-  closeDialog: () => void;
-}
+import { UseFormDialogStore } from "@/types/types";
 
-export const useFormDialogStore = create<FormDialog>((set) => ({
+export const useFormDialogStore = create<UseFormDialogStore>((set) => ({
   isOpen: false,
   id: "",
   openDialog: (id) => set({ isOpen: true, id }),

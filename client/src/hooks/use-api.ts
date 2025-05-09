@@ -5,6 +5,8 @@ import { useDebounce } from "use-debounce";
 import { usePaginationStore } from "../stores/use-pagination-store";
 import { useSearchStore } from "@/stores/use-search-store";
 
+import { OfficeApi, ServiceApi, ServiceCateogryApi, ServiceNameApi } from "@/types/types";
+
 const BASE_URL = "http://localhost:3000";
 
 // Set default config
@@ -13,16 +15,12 @@ const axiosClient = axios.create({
 });
 
 // Offices api
-interface Office {
-  name: string;
-  address?: string;
-}
 
 export const useCreateOffice = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["createOffice"],
-    mutationFn: async (newOffice: Office) => {
+    mutationFn: async (newOffice: OfficeApi) => {
       const response = await axiosClient.post(`/offices`, newOffice);
       return response.data.data;
     },
@@ -69,7 +67,7 @@ export const useUpdateOffice = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["updateOffice", id],
-    mutationFn: async (updateOffice: Office) => {
+    mutationFn: async (updateOffice: OfficeApi) => {
       const response = await axiosClient.patch(`/offices/${id}`, updateOffice);
       return response.data.data;
     },
@@ -127,24 +125,12 @@ export const useGetAllServiceByOfficeId = (officeId: string) => {
   });
 };
 
-interface OpenningDay {
-  day: number;
-}
-
-interface Service {
-  category: string;
-  name: string;
-  reservableDate: Date | undefined;
-  openingDays: OpenningDay[];
-  description?: string;
-}
-
 // Service api
 export const useCreateService = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["createService"],
-    mutationFn: async (newService: Service) => {
+    mutationFn: async (newService: ServiceApi) => {
       const response = await axiosClient.post(`/services`, newService);
       return response.data.data;
     },
@@ -177,7 +163,7 @@ export const useUpdateService = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["updateService", id],
-    mutationFn: async (updateService: Service) => {
+    mutationFn: async (updateService: ServiceApi) => {
       const response = await axiosClient.put(`/services/${id}`, updateService);
       return response.data.data;
     },
@@ -209,16 +195,12 @@ export const useDeleteService = (id: string) => {
   });
 };
 
-interface ServiceCateogry {
-  name: string;
-}
-
 // Category api
 export const useCreateServiceCategory = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["createServiceCategory"],
-    mutationFn: async (newServiceCategory: ServiceCateogry) => {
+    mutationFn: async (newServiceCategory: ServiceCateogryApi) => {
       const response = await axiosClient.post(`/service-categories`, newServiceCategory);
       return response.data.data;
     },
@@ -250,7 +232,7 @@ export const useUpdateServiceCategory = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["updateServiceCategory", id],
-    mutationFn: async (updateServiceCategory: ServiceCateogry) => {
+    mutationFn: async (updateServiceCategory: ServiceCateogryApi) => {
       const response = await axiosClient.patch(`/service-categories/${id}`, updateServiceCategory);
       return response.data.data;
     },
@@ -297,16 +279,12 @@ export const useGetAllServiceNamesByServiceCategoryId = (serviceCategoryId: stri
   });
 };
 
-interface ServiceName {
-  name: string;
-}
-
 // Name api
 export const useCreateServiceName = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["createServiceName"],
-    mutationFn: async (newServiceName: ServiceName) => {
+    mutationFn: async (newServiceName: ServiceNameApi) => {
       const response = await axiosClient.post(`/service-names`, newServiceName);
       return response.data.data;
     },
@@ -338,7 +316,7 @@ export const useUpdateServiceName = (id: string) => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: ["updateServiceName", id],
-    mutationFn: async (updateServiceName: ServiceName) => {
+    mutationFn: async (updateServiceName: ServiceNameApi) => {
       const response = await axiosClient.patch(`/service-names/${id}`, updateServiceName);
       return response.data.data;
     },

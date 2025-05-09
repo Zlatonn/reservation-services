@@ -10,10 +10,7 @@ import { Check, ChevronsUpDown } from "lucide-react";
 import { useGetOffices } from "@/hooks/use-api";
 import { useOfficeIdStore } from "@/stores/use-officeId-store";
 
-interface Offices {
-  id: string;
-  name: string;
-}
+import { Office } from "@/types/types";
 
 export function OfficeSelector() {
   // Fetch offices data using useGetOffices()
@@ -23,7 +20,7 @@ export function OfficeSelector() {
   const { setOfficeId } = useOfficeIdStore();
 
   // // create office state
-  const [offices, setOffices] = useState<Offices[]>([]);
+  const [offices, setOffices] = useState<Office[]>([]);
 
   // initial fetch
   useEffect(() => {

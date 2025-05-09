@@ -37,34 +37,3 @@ export const formSchema = z.object({
 });
 
 export type FormSchema = z.infer<typeof formSchema>;
-
-export interface ServiceCategories {
-  id: string;
-  name: string;
-}
-
-export interface ServiceNames {
-  id: string;
-  name: string;
-}
-
-export interface ServiceData {
-  id: string;
-  category: string;
-  name: string;
-  reservableDate: string;
-  openingDays: {
-    id: string;
-    day: number;
-    timeSlots: {
-      id: string;
-      startAt: string;
-      endAt: string;
-      available: number;
-      openingDayId: string;
-    }[];
-    serviceId: string;
-  }[];
-  description?: string;
-  officeId: string;
-}

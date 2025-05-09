@@ -1,4 +1,4 @@
-import { UseFormReturn, useFieldArray, useFormContext } from "react-hook-form";
+import { useFieldArray, useFormContext } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { th } from "date-fns/locale";
 import { formatThaiDate } from "@/lib/calendar-format";
@@ -16,22 +16,20 @@ import { Input } from "@/components/ui/input";
 import { CalendarIcon } from "lucide-react";
 import { Minus, Plus } from "lucide-react";
 
-import { FormSchema, ServiceCategories, ServiceNames } from "@/schemas/service-schema";
+import {
+  ServiceFormFieldProps,
+  CategoryFieldProps,
+  ServiceCategories,
+  ServiceNames,
+  ServiceNameFieldProps,
+  ReservableDateFieldProps,
+  OpeningDaysFieldProps,
+  TimeSlotFieldProps,
+  DescriptionFieldProps,
+} from "@/types/types";
 
 // Mock up weekdays
 const weekdays = ["อาทิตย์", "จันทร์", "อังคาร", "พุธ", "พฤหัสบดี", "ศุกร์", "เสาร์"];
-
-interface ServiceFormFieldsProps {
-  categoriesData: ServiceCategories[] | undefined;
-  isCategoriesLoading: boolean;
-  serviceNamesData: ServiceNames[] | undefined;
-  isServiceNamesLoading: boolean;
-  handleCategoryChange: (categoryName: string) => void;
-  handleToggleDay: (dayValue: number) => void;
-  selectedDays: number[];
-  openingDaysFields: { day: number; timeSlots: { start: string; end: string }[] }[];
-  form: UseFormReturn<FormSchema>;
-}
 
 export function ServiceFormFields({
   categoriesData,
@@ -43,7 +41,7 @@ export function ServiceFormFields({
   selectedDays,
   openingDaysFields,
   form,
-}: ServiceFormFieldsProps) {
+}: ServiceFormFieldProps) {
   return (
     <>
       {/* Category field */}
@@ -70,17 +68,7 @@ export function ServiceFormFields({
 }
 
 // Category Field Component
-function CategoryField({
-  categoriesData,
-  isCategoriesLoading,
-  handleCategoryChange,
-  form,
-}: {
-  categoriesData: ServiceCategories[] | undefined;
-  isCategoriesLoading: boolean;
-  handleCategoryChange: (categoryName: string) => void;
-  form: UseFormReturn<FormSchema>;
-}) {
+function CategoryField({ categoriesData, isCategoriesLoading, handleCategoryChange, form }: CategoryFieldProps) {
   return (
     <FormField
       control={form.control}
@@ -109,15 +97,7 @@ function CategoryField({
 }
 
 // Service Name Field Component
-function ServiceNameField({
-  serviceNamesData,
-  isServiceNamesLoading,
-  form,
-}: {
-  serviceNamesData: ServiceNames[] | undefined;
-  isServiceNamesLoading: boolean;
-  form: UseFormReturn<FormSchema>;
-}) {
+function ServiceNameField({ serviceNamesData, isServiceNamesLoading, form }: ServiceNameFieldProps) {
   return (
     <FormField
       control={form.control}
@@ -146,7 +126,7 @@ function ServiceNameField({
 }
 
 // Reservable Date Field Component
-function ReservableDateField({ form }: { form: UseFormReturn<FormSchema> }) {
+function ReservableDateField({ form }: ReservableDateFieldProps) {
   return (
     <FormField
       control={form.control}
@@ -189,15 +169,7 @@ function ReservableDateField({ form }: { form: UseFormReturn<FormSchema> }) {
 }
 
 // Opening Days Field Component
-function OpeningDaysField({
-  handleToggleDay,
-  selectedDays,
-  openingDaysFields,
-}: {
-  handleToggleDay: (dayValue: number) => void;
-  selectedDays: number[];
-  openingDaysFields: { day: number; timeSlots: { start: string; end: string }[] }[];
-}) {
+function OpeningDaysField({ handleToggleDay, selectedDays, openingDaysFields }: OpeningDaysFieldProps) {
   return (
     <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row sm:items-start">
       <FormLabel className="text-nowrap w-40">วันที่เปิดทำงาน</FormLabel>
@@ -217,10 +189,6 @@ function OpeningDaysField({
       </div>
     </div>
   );
-}
-
-interface TimeSlotFieldProps {
-  dayIndex: number;
 }
 
 const TimeSlotField = ({ dayIndex }: TimeSlotFieldProps) => {
@@ -279,7 +247,7 @@ const TimeSlotField = ({ dayIndex }: TimeSlotFieldProps) => {
 };
 
 // Description Field Component
-function DescriptionField({ form }: { form: UseFormReturn<FormSchema> }) {
+function DescriptionField({ form }: DescriptionFieldProps) {
   return (
     <FormField
       control={form.control}

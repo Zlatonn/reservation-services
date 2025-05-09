@@ -7,11 +7,7 @@ import { useGetAllServiceByOfficeId } from "@/hooks/use-api";
 import { useFormDialogStore } from "@/stores/use-form-dialog-store";
 import { useOfficeIdStore } from "@/stores/use-officeId-store";
 
-interface Service {
-  id: string;
-  category: string;
-  name: string;
-}
+import { Service } from "@/types/types";
 
 export function ServicesTable() {
   // // Get current office ID
