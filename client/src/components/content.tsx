@@ -9,8 +9,9 @@ import { Plus, ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Search } 
 
 import { useFormDialogStore } from "@/stores/use-form-dialog-store";
 import { useOfficeIdStore } from "@/stores/use-officeId-store";
-import { usePaginationStore } from "@/stores/use-pagination-store";
 import { useSearchStore } from "@/stores/use-search-store";
+
+import { usePaginationControls } from "@/hooks/use-pagination-controls";
 
 const Content = () => {
   // Get current office ID
@@ -19,39 +20,10 @@ const Content = () => {
   // Import open dialog function
   const { openDialog } = useFormDialogStore();
 
-  // Import from usePaginationStore
-  const { skip, take, totalCount, setSkip } = usePaginationStore();
+  // Import usePaginationControls to control pagination
+  const { currentPage, totalPage, handleFirstPage, handlePrevPage, handleNextPage, handleLastPage } = usePaginationControls();
 
-  const currentPage = Math.floor(skip / take) + 1;
-  const totalPage = Math.ceil(totalCount / take);
-
-  // Handle to prev page
-  const handlePrevPage = () => {
-    if (currentPage > 1) setSkip(skip - take);
-  };
-
-  // Handle to next page
-  const handleNextPage = () => {
-    if (currentPage < totalPage) {
-      setSkip(skip + take);
-    }
-  };
-
-  // Handle to first page
-  const handleFirstPage = () => {
-    if (currentPage > 1) {
-      setSkip(0);
-    }
-  };
-
-  // Handle to last page
-  const handleLastPage = () => {
-    if (currentPage < totalPage) {
-      setSkip((totalPage - 1) * take);
-    }
-  };
-
-  // Import  use search store
+  // Import use search store
   const { search, setSearch } = useSearchStore();
 
   //Handle search change
