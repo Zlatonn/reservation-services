@@ -165,6 +165,9 @@ export const useServiceForm = ({ officeId, serviceId, isOpen, isEditMode, closeD
 
   // Handle delete
   const onDelete = () => {
+    const confirmed = confirm("ต้องการลบประเภทงานนี้จริงใช่ไหม?");
+    if (!confirmed) return;
+
     deleteService();
     alert("ลบข้อมูลสำเร็จ");
     closeDialog();
