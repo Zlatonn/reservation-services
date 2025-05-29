@@ -1,6 +1,7 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { cn } from "@/lib/utils";
 import { th } from "date-fns/locale";
+import { format } from "date-fns";
 import { formatThaiDate } from "@/lib/calendar-format";
 
 import { FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
@@ -154,8 +155,8 @@ function ReservableDateField({ form }: ReservableDateFieldProps) {
                 selected={field.value ? new Date(field.value) : undefined}
                 onSelect={(selectedDate) => {
                   if (selectedDate) {
-                    const isoString = selectedDate.toISOString().split("T")[0];
-                    field.onChange(isoString);
+                    const localDate = format(selectedDate, "yyyy-MM-dd", { locale: th });
+                    field.onChange(localDate);
                   }
                 }}
                 initialFocus
