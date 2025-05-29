@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
-import { translateCategory, translateServiceName } from "@/lib/translate";
 import { useGetAllServiceByOfficeId } from "@/hooks/use-api";
 import { useFormDialogStore } from "@/stores/use-form-dialog-store";
 import { useOfficeIdStore } from "@/stores/use-officeId-store";
@@ -28,8 +27,8 @@ export function ServicesTable() {
       const transformed = data.length
         ? data.map((e: Service) => ({
             id: e.id,
-            category: translateCategory(e.category),
-            name: translateServiceName(e.name),
+            category: e.category,
+            name: e.name,
           }))
         : data;
       setServices(transformed);
