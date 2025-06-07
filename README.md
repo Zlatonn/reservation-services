@@ -64,3 +64,7 @@ npm install
 ## 3.	Start the frontend server
 npm run dev
 ```
+
+### More Information
+
+- 👉 [Documentation (PDF)](./Document.pdf)
